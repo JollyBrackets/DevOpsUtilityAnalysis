@@ -1,14 +1,29 @@
 <template>
   <div id="app">
-    <md-toolbar class="md-accent" style="text-align: center">
+    <md-toolbar class="md-accent" style="position: fixed; top: 0; width: 100%; z-index: 1;">
       <h2 class="md-title" style="flex: 1">DevOps Nutzwertanalyse</h2>
     </md-toolbar>
 
-    <md-layout md-gutter>
-      <md-layout md-flex-offset-medium="10" md-flex-medium="80" md-flex-offset-xlarge="33" md-flex-xlarge="33">
-        <div style="padding-bottom: 50px;" v-show="!showResult">
-          <h1 class="md-display-1">Ausschlusskriterien</h1>
-          <div v-for="item in basic">
+    <div style="padding: 60px 30px;">
+      <div v-show="!showResult">
+        <h1 class="md-display-1">Ausschlusskriterien</h1>
+        <div v-for="item in basic" v-bind:key="item.ref">
+          <h1 class="md-title">
+            {{ item.ref }}: {{ item.question }}
+            <sup style="cursor: pointer">
+              <md-icon v-if="item.info">info</md-icon>
+              <md-tooltip md-direction="bottom">{{ item.info }}</md-tooltip>
+            </sup>
+          </h1>
+          <md-button-toggle class="md-primary" md-single>
+            <md-button v-on:click="item.value = 1">Ja</md-button>
+            <md-button v-on:click="item.value = 0">Nein</md-button>
+          </md-button-toggle>
+        </div>
+                
+        <div v-show="allBasicYes">
+          <h1 class="md-display-1">Detailkriterien</h1>
+          <div v-for="item in detail" v-bind:key="item.ref">
             <h1 class="md-title">
               {{ item.ref }}: {{ item.question }}
               <sup style="cursor: pointer">
@@ -16,42 +31,26 @@
                 <md-tooltip md-direction="bottom">{{ item.info }}</md-tooltip>
               </sup>
             </h1>
-            <md-button-toggle class="md-primary" md-single>
-              <md-button v-on:click="item.value = 1">Ja</md-button>
-              <md-button v-on:click="item.value = 0">Nein</md-button>
+            <md-button-toggle class="optionGroup md-primary" md-single>
+              <md-button
+                class="option"
+                v-bind:class="{ mdToggle: item.value == option.value }"
+                v-on:click="item.value = option.value"
+                v-for="option in item.options"
+                v-bind:key="option.label">
+                {{ option.label }}
+              </md-button>
             </md-button-toggle>
           </div>
-
-          <br />
-          
-          <div v-show="allBasicYes">
-            <h1 class="md-display-1">Detailkriterien</h1>
-            <div v-for="item in detail" v-bind:key="item.ref">
-              <h1 class="md-title">
-                {{ item.ref }}: {{ item.question }}
-                <sup style="cursor: pointer">
-                  <md-icon v-if="item.info">info</md-icon>
-                  <md-tooltip md-direction="bottom">{{ item.info }}</md-tooltip>
-                </sup>
-              </h1>
-              <md-button-toggle class="md-primary" md-single>
-                <md-button
-                  v-on:click="item.value = option.value"
-                  v-for="option in item.options"
-                  v-bind:key="option.label">
-                  {{ option.label }}
-                </md-button>
-              </md-button-toggle>
-            </div>
-          </div>
         </div>
+      </div>
+    </div>
 
-        <div style="width: 100%; text-align: center;" v-show="showResult">
-           <h1 class="md-display-4"> {{ score }}% </h1>
-           <h1 class="md-headline">NUTZWERT</h1>
-        </div>
-      </md-layout>
-    </md-layout>
+    <div style="width: 100%; text-align: center;" v-show="showResult">
+        <h1 class="md-display-4"> {{ score }}% </h1>
+        <h1 class="md-headline">NUTZWERT</h1>
+    </div>
+
 
     <md-button class="md-fab" v-if="allDetailClicked" v-on:click="showResult = !showResult" style="position: fixed; bottom: 20px; right: 20px;">
       <md-icon v-if="!showResult">check</md-icon>
@@ -159,7 +158,7 @@
             options: [
               { value: 1, label: 'Nein' },
               { value: 2, label: 'der Applikation (AC1, AC2)' },
-              { value: 3, label: 'der Applikation und des Nutzerverhaltens' }
+              { value: 3, label: 'Applikation und des Nutzerverhaltens' }
             ]
           },
           { 
@@ -215,5 +214,10 @@
 <style>
   body {
     overflow-y: scroll;
+  }
+
+  @media (max-width: 600px) {
+    .optionGroup { display: inline; }
+    .option { min-width: 100%; }
   }
 </style>
