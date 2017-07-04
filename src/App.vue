@@ -217,7 +217,7 @@
   }
 
   @media (max-width: 600px) {
-    .optionGroup { display: inline; }
-    .option { min-width: 100%; }
+    .optionGroup { display: inline !important; }
+    .option { min-width: 100% !important; }
   }
 </style>
